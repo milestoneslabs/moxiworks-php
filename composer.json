@@ -1,6 +1,6 @@
 {
-  "name": "moxiworks/moxiworks_platform",
-  "homepage": "https://github.com/moxiworks-platform/moxiworks-php",
+  "name": "milestoneslabs/moxiworks-php",
+  "homepage": "https://github.com/milestoneslabs/moxiworks-php",
   "description": "MoxiWorks Platform Client Library for PHP.",
   "keywords": ["moxiworks"],
   "type": "library",
