@@ -11,6 +11,8 @@ use Symfony\Component\Translation\Tests\StringClass;
 
 class Contact extends Resource {
 
+    public $moxi_works_contact_id;
+
     /**
      * @var string the Moxi Works Platform ID of the agent
      *   moxi_works_agent_id is the Moxi Works Platform ID of the agent which a contact is
@@ -471,6 +473,10 @@ class Contact extends Resource {
      */
     public $search_property_types;
 
+    public $groups;
+
+    public $moxi_works_lead_source_id;
+
     /**
      * Contact constructor.
      * @param array $data
@@ -643,19 +649,17 @@ class Contact extends Resource {
         if(count(array_intersect(array_keys($attributes), $required_opts)) != count($required_opts))
             throw new ArgumentException(implode(',', $required_opts) . " are required");
 
-        if(count(array_intersect(array_keys($attributes), $search_attrs)) == 0)
-            throw new ArgumentException("at least one of " . implode(',', $search_attrs) . " are required");
-
         $json = Resource::apiConnection($method, $url, $attributes);
 
         if(!isset($json) || empty($json))
             return $results;
-
-        foreach($json as $element) {
+        foreach($json['contacts'] as $element) {
             $contact = new Contact($element);
             array_push($results, $contact);
         }
-        return $results;
+        
+        $json['contacts'] = $results;
+        return $json;
     }
 
 
