@@ -19,6 +19,11 @@ class BuyerTransaction extends Resource {
     public $moxi_works_agent_id;
 
     /**
+     * @var
+     */
+    public $agent_uuid;
+
+    /**
      * @var string the Moxi Works Platform ID of the BuyerTransaction
      *
      */
@@ -107,16 +112,46 @@ class BuyerTransaction extends Resource {
     public $zip_code;
 
     /**
+     * @var
+     */
+    public $min_sqft;
+
+    /**
+     * @var
+     */
+    public $max_sqft;
+
+    /**
      * @var integer living area of the property being sold
      *
      */
     public $sqft;
 
     /**
+     * @var
+     */
+    public $min_beds;
+
+    /**
+     * @var
+     */
+    public $max_beds;
+
+    /**
      * @var integer bedrooms in the property being sold
      *
      */
     public $beds;
+
+    /**
+     * @var
+     */
+    public $min_baths;
+
+    /**
+     * @var
+     */
+    public $max_baths;
 
     /**
      * @var float bathrooms the property being sold
@@ -260,6 +295,27 @@ class BuyerTransaction extends Resource {
      *
      * */
     public $promote_transaction;
+
+    /**
+     * @var
+     */
+    public $area_of_interest;
+
+    /**
+     * @var
+     */
+    public $sales_volume_percentage;
+
+    /**
+     * @var
+     */
+    public $sales_volume_flat_fee;
+
+    /**
+     * @var
+     */
+    public $state_changed_at;
+
 
 
     /**
