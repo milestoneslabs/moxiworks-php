@@ -533,11 +533,6 @@ class BuyerTransaction extends Resource {
         $url = Config::getUrl() . "/api/buyer_transactions";
         $transactions = array();
 
-        $required_opts = array('moxi_works_agent_id');
-
-        if(count(array_intersect(array_keys($attributes), $required_opts)) != count($required_opts))
-            throw new ArgumentException(implode(',', $required_opts) . " are required");
-
         $json = Resource::apiConnection($method, $url, $attributes);
 
         if(!isset($json) || empty($json))
