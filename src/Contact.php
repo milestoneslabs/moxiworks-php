@@ -643,12 +643,6 @@ class Contact extends Resource {
         $url = Config::getUrl() . "/api/contacts";
         $results = array();
 
-        $required_opts = array('moxi_works_agent_id');
-        $search_attrs = array('contact_name', 'phone_number', 'email_address');
-
-        if(count(array_intersect(array_keys($attributes), $required_opts)) != count($required_opts))
-            throw new ArgumentException(implode(',', $required_opts) . " are required");
-
         $json = Resource::apiConnection($method, $url, $attributes);
 
         if(!isset($json) || empty($json))
@@ -657,7 +651,7 @@ class Contact extends Resource {
             $contact = new Contact($element);
             array_push($results, $contact);
         }
-        
+
         $json['contacts'] = $results;
         return $json;
     }
