@@ -624,6 +624,7 @@ class Contact extends Resource {
      *  \MoxiworksPlatform\Contact::search([moxi_works_agent_id: 'abc123', contact_name: 'Buckminster Fuller'])
      *  </code>
      * @param array $attributes
+     * @param string|null $sessionKey
      *       <br><b>moxi_works_agent_id *either agent_uuid or moxi_works_agent_id are REQUIRED* </b>The Moxi Works Agent ID for the agent to which this contact is associated
      *       <br><b>agent_uuid *either agent_uuid or moxi_works_agent_id are REQUIRED* </b>The Moxi Works Agent UUID for the agent to which this contact is associated
      *       <br><b>contact_name</b>full name of the contact
@@ -638,12 +639,12 @@ class Contact extends Resource {
      * @throws ArgumentException if at least one search parameter is not defined
      * @throws RemoteRequestFailureException
      */
-    public static function search($attributes=[]) {
+    public static function search($attributes=[], ?string $sessionKey = null) {
         $method = 'GET';
         $url = Config::getUrl() . "/api/contacts";
         $results = array();
 
-        $json = Resource::apiConnection($method, $url, $attributes);
+        $json = Resource::apiConnection($method, $url, $attributes, $sessionKey);
 
         if(!isset($json) || empty($json))
             return $results;
