@@ -73,6 +73,7 @@ class Resource {
             $log->headers = $res->getHeaders();
             $log->status_code = $res->getStatusCode();
             $log->session_key = $sessionKey;
+            $log->endpoint = $url;
             $log->save();
         }
 
