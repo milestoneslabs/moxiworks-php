@@ -450,6 +450,7 @@ class SellerTransaction extends Resource {
      *  \MoxiworksPlatform\SellerTransaction::search(['moxi_works_agent_id' => 'abc123', 'page_number' => 3, moxi_works_contact_id => 'deadbeef-feed-face-bad4-dad2feedface'])
      *  </code>
      * @param array $attributes
+     * @param string|null $sessionKey
      *       <br><b>moxi_works_agent_id *REQUIRED* </b> string The Moxi Works Agent ID for the agent to which this task is associated
      *
      *       <h2>
@@ -470,12 +471,12 @@ class SellerTransaction extends Resource {
      * @throws ArgumentException if at least one search parameter is not defined
      * @throws RemoteRequestFailureException
      */
-    public static function search($attributes=[]) {
+    public static function search($attributes=[], ?string $sessionKey = null) {
         $method = 'GET';
         $url = Config::getUrl() . "/api/seller_transactions";
         $transactions = array();
 
-        $json = Resource::apiConnection($method, $url, $attributes);
+        $json = Resource::apiConnection($method, $url, $attributes, $sessionKey);
 
         if(!isset($json) || empty($json))
             return null;

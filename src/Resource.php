@@ -3,6 +3,8 @@
 
 namespace MoxiworksPlatform;
 
+use Illuminate\Support\Facades\Log;
+use Milestones\Models\MoxiImportLog;
 use MoxiworksPlatform\Exception\RemoteRequestFailureException;
 
 
@@ -44,7 +46,16 @@ class Resource {
         return 'moxiworks_platform php client';
     }
 
-    public static function apiConnection($method, $url, $attributes) {
+    /**
+     * @param $method
+     * @param $url
+     * @param $attributes
+     * @param string|null $sessionKey
+     * @return mixed
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public static function apiConnection($method, $url, $attributes, ?string $sessionKey = null)
+    {
         $client = new \GuzzleHttp\Client();
         $json = null;
         $type = ($method == 'GET') ? 'query' : 'form_params';
@@ -54,8 +65,21 @@ class Resource {
             'debug' => Config::getDebug()
         ];
         $res = $client->request($method, $url, $query);
+
+        if (env('MOXI_LOG_REQUESTS', false)) {
+            Log::channel('importJobs')->info(__METHOD__, ['headers' => $res->getHeaders()]);
+
+            $log = new MoxiImportLog();
+            $log->headers = $res->getHeaders();
+            $log->status_code = $res->getStatusCode();
+            $log->session_key = $sessionKey;
+            $log->endpoint = $url;
+            $log->save();
+        }
+
         $body = $res->getBody();
-        if(!isset(Session::$cookie)) {
+
+        if (!isset(Session::$cookie)) {
             Session::$cookie = $res->getHeader('set-cookie');
         }
         try {
