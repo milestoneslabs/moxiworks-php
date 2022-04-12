@@ -601,6 +601,7 @@ class Contact extends Resource {
      *  \MoxiworksPlatform\Contact::find([moxi_works_agent_id: 'abc123', partner_contact_id: 'my_system_contact_id'])
      *  </code>
      * @param array $attributes
+     * @param string|null $sessionKey
      *       <br><b>moxi_works_agent_id *either agent_uuid or moxi_works_agent_id are REQUIRED* </b>The Moxi Works Agent ID for the agent to which this contact is associated
      *       <br><b>agent_uuid *either agent_uuid or moxi_works_agent_id are REQUIRED* </b>The Moxi Works Agent UUID for the agent to which this contact is associated
      *       <br><b>partner_contact_id *REQUIRED* </b>Your system's unique ID for this contact.
@@ -611,9 +612,9 @@ class Contact extends Resource {
      * @throws ArgumentException if required parameters are not included
      * @throws RemoteRequestFailureException
      */
-    public static function find($attributes=[]) {
+    public static function find($attributes=[], ?string $sessionKey = null) {
         $url = Config::getUrl() . "/api/contacts/" . $attributes['partner_contact_id'];
-        return Contact::sendRequest('GET', $attributes, $url);
+        return Contact::sendRequest('GET', $attributes, $url, $sessionKey);
     }
 
     /**
@@ -787,13 +788,14 @@ class Contact extends Resource {
      * @param $method
      * @param array $opts
      * @param null $url
+     * @param string|null $sessionKey
      *
      * @return Contact|null
      *
      * @throws ArgumentException if required parameters are not included
      * @throws RemoteRequestFailureException
      */
-    private static function sendRequest($method, $opts=[], $url=null) {
+    private static function sendRequest($method, $opts=[], $url=null, ?string $sessionKey = null) {
         if($url == null) {
             $url = Config::getUrl() . "/api/contacts";
         }
@@ -801,7 +803,7 @@ class Contact extends Resource {
         if(count(array_intersect(array_keys($opts), $required_opts)) + 1 < count($required_opts))
             throw new ArgumentException(implode(',', $required_opts) . " are required");
         $contact = null;
-        $json = Resource::apiConnection($method, $url, $opts);
+        $json = Resource::apiConnection($method, $url, $opts, $sessionKey);
         $contact = (!isset($json) || empty($json)) ? null : new Contact($json);
         return $contact;
     }
