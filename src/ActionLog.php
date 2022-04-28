@@ -166,9 +166,7 @@ class ActionLog extends Resource {
         if($url == null) {
             $url = Config::getUrl() . "/api/action_logs";
         }
-        $required_opts = array('partner_contact_id', 'moxi_works_agent_id');
-        if(count(array_intersect(array_keys($opts), $required_opts)) != count($required_opts))
-            throw new ArgumentException(implode(',', $required_opts) . " are required");
+
         $action_log = null;
         $json = Resource::apiConnection($method, $url, $opts);
         $action_log = (!isset($json) || empty($json)) ? null : new ActionLog($json);
