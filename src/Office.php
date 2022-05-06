@@ -116,6 +116,21 @@ class Office extends Resource {
      * @var string client office id
      */
     public $client_office_id;
+    /**
+     * @var timestamp $last_updated
+     */
+    public $last_updated;
+
+    /**
+     * @var timestamp created_timestamp
+     */
+    public $created_timestamp;
+    /**
+     * @var timestamp created_timestamp
+     */
+    public $deactivated_timestamp;
+
+
 
     /**
      * Office constructor.

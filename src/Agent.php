@@ -251,6 +251,20 @@ class Agent extends Resource {
      * @var string agent's last name
      */
     public $last_name;
+    /**
+     * @var timestamp $created_timestamp
+     */
+    public $created_timestamp;
+    /**
+     * @var $deactivated_timestamp
+     */
+    public $deactivated_timestamp;
+    /**
+     * @var timestamp last updated
+     */
+    public $last_updated;
+
+
 
     /**
      * Agent constructor.
