@@ -84,7 +84,7 @@ class Resource {
             $log = new ConnectorImportApiRequest();
             $request = [
                 'endpoint' => $url,
-                'type' => $type,
+                'method' => $method,
                 'attributes' => $attributes
             ];
             $response = [
