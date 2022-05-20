@@ -3,7 +3,10 @@
 
 namespace MoxiworksPlatform;
 
+use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Milestones\Models\ConnectorImportApiRequest;
 use Milestones\Models\MoxiImportLog;
 use MoxiworksPlatform\Exception\RemoteRequestFailureException;
 
@@ -51,12 +54,12 @@ class Resource {
      * @param $url
      * @param $attributes
      * @param string|null $sessionKey
+     * @param string|null $importUuid
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public static function apiConnection($method, $url, $attributes, ?string $sessionKey = null)
+    public static function apiConnection($method, $url, $attributes, ?string $sessionKey = null, ?string $importUuid = null)
     {
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
         $json = null;
         $type = ($method == 'GET') ? 'query' : 'form_params';
         $query = [
@@ -74,6 +77,25 @@ class Resource {
             $log->status_code = $res->getStatusCode();
             $log->session_key = $sessionKey;
             $log->endpoint = $url;
+            $log->save();
+        }
+
+        if($importUuid) {
+            $log = new ConnectorImportApiRequest();
+            $request = [
+                'endpoint' => $url,
+                'method' => $method,
+                'attributes' => $attributes
+            ];
+            $response = [
+                'headers' => $res->getHeaders(),
+                'body' => $res->getBody()->getContents(),
+            ];
+
+            $log->response = $response;
+            $log->response_status_code = $res->getStatusCode();
+            $log->request = $request;
+            $log->connector_import_uuid = $importUuid;
             $log->save();
         }
 
@@ -111,5 +133,4 @@ class Resource {
         $out = ltrim(strtolower($out), '_');
         return $out;
     }
-
 }

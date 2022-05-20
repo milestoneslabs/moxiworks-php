@@ -509,6 +509,7 @@ class BuyerTransaction extends Resource {
      *  </code>
      * @param array $attributes
      * @param string|null $sessionKey
+     * @param string|null $importUuid
      *       <br><b>moxi_works_agent_id *REQUIRED* </b> string The Moxi Works Agent ID for the agent to which this task is associated
      *
      *       <h2>
@@ -529,12 +530,12 @@ class BuyerTransaction extends Resource {
      * @throws ArgumentException if at least one search parameter is not defined
      * @throws RemoteRequestFailureException
      */
-    public static function search($attributes=[], ?string $sessionKey = null) {
+    public static function search(array $attributes=[], ?string $sessionKey = null, ?string $importUuid = null) {
         $method = 'GET';
         $url = Config::getUrl() . "/api/buyer_transactions";
         $transactions = array();
 
-        $json = Resource::apiConnection($method, $url, $attributes, $sessionKey);
+        $json = Resource::apiConnection($method, $url, $attributes, $sessionKey, $importUuid);
 
         if(!isset($json) || empty($json))
             return null;
