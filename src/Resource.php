@@ -6,8 +6,7 @@ namespace MoxiworksPlatform;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use Milestones\Models\ConnectorImportApiRequest;
-use Milestones\Models\MoxiImportLog;
+use Milestones\Models\ConnectorImportLogRequest;
 use MoxiworksPlatform\Exception\RemoteRequestFailureException;
 
 
@@ -69,19 +68,8 @@ class Resource {
         ];
         $res = $client->request($method, $url, $query);
 
-        if (env('MOXI_LOG_REQUESTS', false)) {
-            Log::channel('importJobs')->info(__METHOD__, ['headers' => $res->getHeaders()]);
-
-            $log = new MoxiImportLog();
-            $log->headers = $res->getHeaders();
-            $log->status_code = $res->getStatusCode();
-            $log->session_key = $sessionKey;
-            $log->endpoint = $url;
-            $log->save();
-        }
-
-        if($importUuid) {
-            $log = new ConnectorImportApiRequest();
+        if ($importUuid) {
+            $log = new ConnectorImportLogRequest();
             $request = [
                 'endpoint' => $url,
                 'method' => $method,
@@ -95,7 +83,7 @@ class Resource {
             $log->response = $response;
             $log->response_status_code = $res->getStatusCode();
             $log->request = $request;
-            $log->connector_import_uuid = $importUuid;
+            $log->import_log_uuid = $importUuid;
             $log->save();
         }
 
