@@ -11,6 +11,8 @@ use Symfony\Component\Translation\Tests\StringClass;
 
 class Contact extends Resource {
 
+    public $moxi_works_contact_id;
+
     /**
      * @var string the Moxi Works Platform ID of the agent
      *   moxi_works_agent_id is the Moxi Works Platform ID of the agent which a contact is
@@ -471,6 +473,10 @@ class Contact extends Resource {
      */
     public $search_property_types;
 
+    public $groups;
+
+    public $moxi_works_lead_source_id;
+
     /**
      * Contact constructor.
      * @param array $data
@@ -595,6 +601,8 @@ class Contact extends Resource {
      *  \MoxiworksPlatform\Contact::find([moxi_works_agent_id: 'abc123', partner_contact_id: 'my_system_contact_id'])
      *  </code>
      * @param array $attributes
+     * @param string|null $sessionKey
+     * @param string|null $importUuid
      *       <br><b>moxi_works_agent_id *either agent_uuid or moxi_works_agent_id are REQUIRED* </b>The Moxi Works Agent ID for the agent to which this contact is associated
      *       <br><b>agent_uuid *either agent_uuid or moxi_works_agent_id are REQUIRED* </b>The Moxi Works Agent UUID for the agent to which this contact is associated
      *       <br><b>partner_contact_id *REQUIRED* </b>Your system's unique ID for this contact.
@@ -605,9 +613,10 @@ class Contact extends Resource {
      * @throws ArgumentException if required parameters are not included
      * @throws RemoteRequestFailureException
      */
-    public static function find($attributes=[]) {
+    public static function find(array $attributes=[], ?string $sessionKey = null, ?string $importUuid = null): ?Contact
+    {
         $url = Config::getUrl() . "/api/contacts/" . $attributes['partner_contact_id'];
-        return Contact::sendRequest('GET', $attributes, $url);
+        return Contact::sendRequest('GET', $attributes, $url, $sessionKey, $importUuid);
     }
 
     /**
@@ -618,6 +627,8 @@ class Contact extends Resource {
      *  \MoxiworksPlatform\Contact::search([moxi_works_agent_id: 'abc123', contact_name: 'Buckminster Fuller'])
      *  </code>
      * @param array $attributes
+     * @param string|null $sessionKey
+     * @param string|null $importUuid
      *       <br><b>moxi_works_agent_id *either agent_uuid or moxi_works_agent_id are REQUIRED* </b>The Moxi Works Agent ID for the agent to which this contact is associated
      *       <br><b>agent_uuid *either agent_uuid or moxi_works_agent_id are REQUIRED* </b>The Moxi Works Agent UUID for the agent to which this contact is associated
      *       <br><b>contact_name</b>full name of the contact
@@ -632,30 +643,22 @@ class Contact extends Resource {
      * @throws ArgumentException if at least one search parameter is not defined
      * @throws RemoteRequestFailureException
      */
-    public static function search($attributes=[]) {
+    public static function search(array $attributes=[], ?string $sessionKey = null, ?string $importUuid = null) {
         $method = 'GET';
         $url = Config::getUrl() . "/api/contacts";
         $results = array();
 
-        $required_opts = array('moxi_works_agent_id');
-        $search_attrs = array('contact_name', 'phone_number', 'email_address');
-
-        if(count(array_intersect(array_keys($attributes), $required_opts)) != count($required_opts))
-            throw new ArgumentException(implode(',', $required_opts) . " are required");
-
-        if(count(array_intersect(array_keys($attributes), $search_attrs)) == 0)
-            throw new ArgumentException("at least one of " . implode(',', $search_attrs) . " are required");
-
-        $json = Resource::apiConnection($method, $url, $attributes);
+        $json = Resource::apiConnection($method, $url, $attributes, $sessionKey, $importUuid);
 
         if(!isset($json) || empty($json))
             return $results;
-
-        foreach($json as $element) {
+        foreach($json['contacts'] as $element) {
             $contact = new Contact($element);
             array_push($results, $contact);
         }
-        return $results;
+
+        $json['contacts'] = $results;
+        return $json;
     }
 
 
@@ -788,13 +791,15 @@ class Contact extends Resource {
      * @param $method
      * @param array $opts
      * @param null $url
+     * @param string|null $sessionKey
+     * @param string|null $importUuid
      *
      * @return Contact|null
      *
      * @throws ArgumentException if required parameters are not included
      * @throws RemoteRequestFailureException
      */
-    private static function sendRequest($method, $opts=[], $url=null) {
+    private static function sendRequest($method, $opts=[], $url=null, ?string $sessionKey = null, ?string $importUuid = null) {
         if($url == null) {
             $url = Config::getUrl() . "/api/contacts";
         }
@@ -802,7 +807,7 @@ class Contact extends Resource {
         if(count(array_intersect(array_keys($opts), $required_opts)) + 1 < count($required_opts))
             throw new ArgumentException(implode(',', $required_opts) . " are required");
         $contact = null;
-        $json = Resource::apiConnection($method, $url, $opts);
+        $json = Resource::apiConnection($method, $url, $opts, $sessionKey, $importUuid);
         $contact = (!isset($json) || empty($json)) ? null : new Contact($json);
         return $contact;
     }

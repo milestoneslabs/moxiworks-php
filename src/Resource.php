@@ -3,6 +3,10 @@
 
 namespace MoxiworksPlatform;
 
+use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use Milestones\Models\ConnectorImportLogRequest;
 use MoxiworksPlatform\Exception\RemoteRequestFailureException;
 
 
@@ -44,8 +48,17 @@ class Resource {
         return 'moxiworks_platform php client';
     }
 
-    public static function apiConnection($method, $url, $attributes) {
-        $client = new \GuzzleHttp\Client();
+    /**
+     * @param $method
+     * @param $url
+     * @param $attributes
+     * @param string|null $sessionKey
+     * @param string|null $importUuid
+     * @return mixed
+     */
+    public static function apiConnection($method, $url, $attributes, ?string $sessionKey = null, ?string $importUuid = null)
+    {
+        $client = new Client();
         $json = null;
         $type = ($method == 'GET') ? 'query' : 'form_params';
         $query = [
@@ -54,8 +67,29 @@ class Resource {
             'debug' => Config::getDebug()
         ];
         $res = $client->request($method, $url, $query);
+
+        if ($importUuid) {
+            $log = new ConnectorImportLogRequest();
+            $request = [
+                'endpoint' => $url,
+                'method' => $method,
+                'attributes' => $attributes
+            ];
+            $response = [
+                'headers' => $res->getHeaders(),
+                'body' => $res->getBody()->getContents(),
+            ];
+
+            $log->response = $response;
+            $log->response_status_code = $res->getStatusCode();
+            $log->request = $request;
+            $log->import_log_uuid = $importUuid;
+            $log->save();
+        }
+
         $body = $res->getBody();
-        if(!isset(Session::$cookie)) {
+
+        if (!isset(Session::$cookie)) {
             Session::$cookie = $res->getHeader('set-cookie');
         }
         try {
@@ -87,5 +121,4 @@ class Resource {
         $out = ltrim(strtolower($out), '_');
         return $out;
     }
-
 }

@@ -405,6 +405,8 @@ class Listing extends Resource {
      *  \MoxiworksPlatform\Listing::search([moxi_works_company_id: 'abc123', updated_since: 1463595006])
      *  </code>
      * @param array $attributes
+     * @param string|null $sessionKey
+     * @param string|null $importUuid
      *       <br><b>moxi_works_company_id *REQUIRED* </b> string The Moxi Works Company ID for the company in which we are searching for listings
      *
      *       <h2>
@@ -423,7 +425,7 @@ class Listing extends Resource {
      * @throws ArgumentException if at least one search parameter is not defined
      * @throws RemoteRequestFailureException
      */
-    public static function search($attributes=[]) {
+    public static function search($attributes=[], ?string $sessionKey = null, ?string $importUuid = null) {
         $method = 'GET';
         $url = Config::getUrl() . "/api/listings";
         $listings = array();
@@ -433,7 +435,7 @@ class Listing extends Resource {
         if(count(array_intersect(array_keys($attributes), $required_opts)) != count($required_opts))
             throw new ArgumentException(implode(',', $required_opts) . " are required");
 
-        $json = Resource::apiConnection($method, $url, $attributes);
+        $json = Resource::apiConnection($method, $url, $attributes, $sessionKey, $importUuid);
 
         if(!isset($json) || empty($json))
             return null;

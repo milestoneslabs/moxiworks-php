@@ -251,6 +251,20 @@ class Agent extends Resource {
      * @var string agent's last name
      */
     public $last_name;
+    /**
+     * @var timestamp $created_timestamp
+     */
+    public $created_timestamp;
+    /**
+     * @var $deactivated_timestamp
+     */
+    public $deactivated_timestamp;
+    /**
+     * @var timestamp last updated
+     */
+    public $last_updated;
+
+
 
     /**
      * Agent constructor.
@@ -297,6 +311,8 @@ class Agent extends Resource {
      *  \MoxiworksPlatform\Agent::search([moxi_works_company_id: 'abc123', updated_since: 1463595006])
      *  </code>
      * @param array $attributes
+     * @param string|null $sessionKey
+     * @param string|null $importUuid
      *       <br><b>moxi_works_company_id *REQUIRED* </b> string The Moxi Works Company ID for the company in which we are searching for agents
      *
      *       <h2>
@@ -315,7 +331,7 @@ class Agent extends Resource {
      * @throws ArgumentException if at least one search parameter is not defined
      * @throws RemoteRequestFailureException
      */
-    public static function search($attributes=[]) {
+    public static function search(array $attributes=[], ?string $sessionKey=null, ?string $importUuid=null) {
         $method = 'GET';
         $url = Config::getUrl() . "/api/agents";
         $agents = array();
@@ -325,7 +341,7 @@ class Agent extends Resource {
         if(count(array_intersect(array_keys($attributes), $required_opts)) != count($required_opts))
             throw new ArgumentException(implode(',', $required_opts) . " are required");
 
-        $json = Resource::apiConnection($method, $url, $attributes);
+        $json = Resource::apiConnection($method, $url, $attributes, $sessionKey, $importUuid);
 
         if(!isset($json) || empty($json))
             return null;

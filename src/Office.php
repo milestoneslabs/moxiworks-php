@@ -116,6 +116,21 @@ class Office extends Resource {
      * @var string client office id
      */
     public $client_office_id;
+    /**
+     * @var timestamp $last_updated
+     */
+    public $last_updated;
+
+    /**
+     * @var timestamp created_timestamp
+     */
+    public $created_timestamp;
+    /**
+     * @var timestamp created_timestamp
+     */
+    public $deactivated_timestamp;
+
+
 
     /**
      * Office constructor.
@@ -137,6 +152,8 @@ class Office extends Resource {
      *  \MoxiworksPlatform\Office::find([moxi_works_office_id: 'abc123', 'moxi_works_company_id' => 'foo_bar'])
      *  </code>
      * @param array $attributes
+     * @param string|null $sessionKey
+     * @param string|null $importUuid
      *       <br><b>moxi_works_office_id *REQUIRED* </b>The Moxi Works Office ID
      *       <br><b>moxi_works_company_id *REQUIRED* </b>The Moxi Works Company ID
      *
@@ -146,9 +163,9 @@ class Office extends Resource {
      * @throws ArgumentException if required parameters are not included
      * @throws RemoteRequestFailureException
      */
-    public static function find($attributes=[]) {
+    public static function find(array $attributes=[], ?string $sessionKey=null, ?string $importUuid=null) {
         $url = Config::getUrl() . "/api/offices/" . $attributes['moxi_works_office_id'];
-        return Office::sendRequest('GET', $attributes, $url);
+        return Office::sendRequest('GET', $attributes, $url, $sessionKey, $importUuid);
     }
 
     /**
@@ -204,13 +221,15 @@ class Office extends Resource {
      * @param $method
      * @param array $opts
      * @param null $url
+     * @param string|null $sessionKey
+     * @param string|null $importUuid
      *
      * @return Office|null
      *
      * @throws ArgumentException if required parameters are not included
      * @throws RemoteRequestFailureException
      */
-    private static function sendRequest($method, $opts=[], $url=null) {
+    private static function sendRequest($method, $opts=[], $url=null, ?string $sessionKey=null, ?string $importUuid=null) {
         if($url == null) {
             $url = Config::getUrl() . "/api/offices";
         }
@@ -218,7 +237,7 @@ class Office extends Resource {
         if(count(array_intersect(array_keys($opts), $required_opts)) != count($required_opts))
             throw new ArgumentException(implode(',', $required_opts) . " required");
         $office = null;
-        $json = Resource::apiConnection($method, $url, $opts);
+        $json = Resource::apiConnection($method, $url, $opts, $sessionKey, $importUuid);
         $office = (!isset($json) || empty($json)) ? null : new Office($json);
         return $office;
     }
